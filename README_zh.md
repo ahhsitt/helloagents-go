@@ -40,6 +40,8 @@ HelloAgents Go 是一个生产级的 AI Agent 框架，提供统一、类型安�
 - 递归字符分块，支持重叠
 - 向量嵌入和存储
 - 多种检索策略（相似度、多源、重排序）
+- 高级策略：MQE（多查询扩展）、HyDE（假设文档嵌入）
+- 结果融合（RRF、基于分数）和后处理管道
 
 ### LLM 提供商
 - OpenAI（GPT-4o、GPT-4、GPT-3.5）
@@ -498,6 +500,77 @@ multiRetriever := rag.NewMultiRetriever(
 )
 ```
 
+### 高级检索策略
+
+HelloAgents 通过统一的管道架构支持高级检索增强策略。
+
+#### MQE（多查询扩展）
+
+将单个查询扩展为多个语义相关的变体，以提高召回率：
+
+```go
+retriever := rag.NewVectorRetriever(store, embedder)
+
+// 使用 LLM 生成查询变体
+results, _ := retriever.RetrieveWithOptions(ctx, "什么是机器学习？", 5,
+    rag.WithMQE(llmProvider, 3), // 生成 3 个扩展查询
+)
+```
+
+#### HyDE（假设文档嵌入）
+
+生成假设性答案文档，使用其嵌入进行检索：
+
+```go
+results, _ := retriever.RetrieveWithOptions(ctx, "什么是机器学习？", 5,
+    rag.WithHyDE(llmProvider),
+)
+```
+
+#### 组合策略
+
+组合多种策略以获得最佳检索质量：
+
+```go
+results, _ := retriever.RetrieveWithOptions(ctx, "什么是机器学习？", 5,
+    rag.WithMQE(llmProvider, 2),        // 多查询扩展
+    rag.WithHyDE(llmProvider),           // 假设文档
+    rag.WithRerank(reranker),            // 重排序后处理
+    rag.WithRRFFusion(60),               // RRF 融合多查询结果
+)
+```
+
+#### 自定义变换器
+
+使用自定义选项配置变换器：
+
+```go
+mqeTransformer := rag.NewMultiQueryTransformer(llmProvider,
+    rag.WithNumQueries(3),
+    rag.WithIncludeOriginal(true),
+)
+
+hydeTransformer := rag.NewHyDETransformer(llmProvider,
+    rag.WithHyDEMaxTokens(256),
+)
+
+results, _ := retriever.RetrieveWithOptions(ctx, query, 5,
+    rag.WithMQETransformer(mqeTransformer),
+    rag.WithHyDETransformer(hydeTransformer),
+    rag.WithTimeout(10*time.Second),
+)
+```
+
+#### 可用策略
+
+| 策略 | 类型 | 描述 |
+|------|------|------|
+| MQE | QueryTransformer | 将查询扩展为多个语义变体 |
+| HyDE | QueryTransformer | 生成假设性答案文档 |
+| RRF 融合 | FusionStrategy | 倒数排名融合多查询结果 |
+| 分数融合 | FusionStrategy | 按最高分数合并 |
+| 重排序 | PostProcessor | 使用交叉编码器重新评分 |
+
 ---
 
 ## 可观测性
@@ -611,7 +684,8 @@ HelloAgents/
 │   ├── simple/                  # 基础聊天
 │   ├── react/                   # 带工具的 Agent
 │   ├── memory/                  # 记忆演示
-│   └── rag/                     # RAG 问答
+│   ├── rag/                     # RAG 问答
+│   └── rag-advanced/            # 高级 RAG（MQE、HyDE）
 ├── tests/                       # 测试套件
 │   ├── unit/                    # 单元测试
 │   └── integration/             # 集成测试

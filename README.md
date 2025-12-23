@@ -40,6 +40,8 @@ HelloAgents Go is a production-ready AI Agent framework that provides a unified,
 - Recursive character chunking with overlap
 - Vector embedding and storage
 - Multiple retrieval strategies (similarity, multi-source, reranking)
+- Advanced strategies: MQE (Multi-Query Expansion), HyDE (Hypothetical Document Embedding)
+- Result fusion (RRF, Score-Based) and post-processing pipeline
 
 ### LLM Providers
 - OpenAI (GPT-4o, GPT-4, GPT-3.5)
@@ -498,6 +500,77 @@ multiRetriever := rag.NewMultiRetriever(
 )
 ```
 
+### Advanced Retrieval Strategies
+
+HelloAgents supports advanced retrieval enhancement strategies through a unified pipeline architecture.
+
+#### MQE (Multi-Query Expansion)
+
+Expand a single query into multiple semantically related variants to improve recall:
+
+```go
+retriever := rag.NewVectorRetriever(store, embedder)
+
+// Use MQE with LLM to generate query variants
+results, _ := retriever.RetrieveWithOptions(ctx, "What is machine learning?", 5,
+    rag.WithMQE(llmProvider, 3), // Generate 3 expanded queries
+)
+```
+
+#### HyDE (Hypothetical Document Embedding)
+
+Generate a hypothetical answer document and use its embedding for retrieval:
+
+```go
+results, _ := retriever.RetrieveWithOptions(ctx, "What is machine learning?", 5,
+    rag.WithHyDE(llmProvider),
+)
+```
+
+#### Combined Strategies
+
+Combine multiple strategies for optimal retrieval quality:
+
+```go
+results, _ := retriever.RetrieveWithOptions(ctx, "What is machine learning?", 5,
+    rag.WithMQE(llmProvider, 2),        // Multi-query expansion
+    rag.WithHyDE(llmProvider),           // Hypothetical document
+    rag.WithRerank(reranker),            // Reranking post-process
+    rag.WithRRFFusion(60),               // RRF fusion for multi-query results
+)
+```
+
+#### Custom Transformers
+
+Configure transformers with custom options:
+
+```go
+mqeTransformer := rag.NewMultiQueryTransformer(llmProvider,
+    rag.WithNumQueries(3),
+    rag.WithIncludeOriginal(true),
+)
+
+hydeTransformer := rag.NewHyDETransformer(llmProvider,
+    rag.WithHyDEMaxTokens(256),
+)
+
+results, _ := retriever.RetrieveWithOptions(ctx, query, 5,
+    rag.WithMQETransformer(mqeTransformer),
+    rag.WithHyDETransformer(hydeTransformer),
+    rag.WithTimeout(10*time.Second),
+)
+```
+
+#### Available Strategies
+
+| Strategy | Type | Description |
+|----------|------|-------------|
+| MQE | QueryTransformer | Expands query into multiple semantic variants |
+| HyDE | QueryTransformer | Generates hypothetical answer document |
+| RRF Fusion | FusionStrategy | Reciprocal Rank Fusion for multi-query results |
+| Score-Based Fusion | FusionStrategy | Merge by highest score |
+| Rerank | PostProcessor | Re-score results using cross-encoder |
+
 ---
 
 ## Observability
@@ -611,7 +684,8 @@ HelloAgents/
 │   ├── simple/                  # Basic chat
 │   ├── react/                   # Tool-using agent
 │   ├── memory/                  # Memory demo
-│   └── rag/                     # RAG Q&A
+│   ├── rag/                     # RAG Q&A
+│   └── rag-advanced/            # Advanced RAG (MQE, HyDE)
 ├── tests/                       # Test suites
 │   ├── unit/                    # Unit tests
 │   └── integration/             # Integration tests

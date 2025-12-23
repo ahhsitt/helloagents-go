@@ -14,8 +14,8 @@ type FallbackProvider struct {
 	fallbacks []Provider
 	mu        sync.RWMutex
 	// 健康状态跟踪
-	healthStatus map[Provider]bool
-	lastCheck    map[Provider]time.Time
+	healthStatus  map[Provider]bool
+	lastCheck     map[Provider]time.Time
 	checkInterval time.Duration
 }
 

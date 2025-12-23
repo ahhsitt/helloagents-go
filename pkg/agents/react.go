@@ -261,7 +261,8 @@ func (a *ReActAgent) RunStream(ctx context.Context, input Input) (<-chan StreamC
 		}
 
 		// 发送推理步骤
-		for _, step := range output.Steps {
+		for i := range output.Steps {
+			step := output.Steps[i]
 			chunkChan <- StreamChunk{
 				Type: ChunkTypeStep,
 				Step: &step,

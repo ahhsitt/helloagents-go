@@ -48,7 +48,11 @@ func validateProperty(name string, schema PropertySchema, value interface{}) err
 	// 约束检查
 	switch schema.Type {
 	case "string":
-		return validateString(name, schema, value.(string))
+		str, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("parameter %s: expected string", name)
+		}
+		return validateString(name, schema, str)
 	case "number", "integer":
 		return validateNumber(name, schema, value)
 	case "array":
@@ -77,7 +81,10 @@ func validateType(name, expectedType string, value interface{}) error {
 		if kind != reflect.Int && kind != reflect.Int64 && kind != reflect.Int32 {
 			// JSON 数字可能解析为 float64
 			if kind == reflect.Float64 {
-				f := value.(float64)
+				f, ok := value.(float64)
+				if !ok {
+					return fmt.Errorf("parameter %s: expected integer, got %T", name, value)
+				}
 				if f != float64(int64(f)) {
 					return fmt.Errorf("parameter %s: expected integer, got float", name)
 				}

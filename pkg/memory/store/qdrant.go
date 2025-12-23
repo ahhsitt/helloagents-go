@@ -150,8 +150,8 @@ func (s *QdrantVectorStore) buildPayload(v VectorRecord) map[string]interface{} 
 // SearchSimilar 相似度搜索
 func (s *QdrantVectorStore) SearchSimilar(ctx context.Context, collection string, vector []float32, topK int, filter *VectorFilter) ([]VectorSearchResult, error) {
 	body := map[string]interface{}{
-		"vector":      vector,
-		"limit":       topK,
+		"vector":       vector,
+		"limit":        topK,
 		"with_payload": true,
 	}
 
@@ -209,7 +209,19 @@ func (s *QdrantVectorStore) SearchSimilar(ctx context.Context, collection string
 
 // buildQdrantFilter 构建 Qdrant 过滤器
 func (s *QdrantVectorStore) buildQdrantFilter(filter *VectorFilter) map[string]interface{} {
-	var mustConditions []map[string]interface{}
+	// 估算条件数量
+	conditionCount := len(filter.Conditions)
+	if filter.MemoryID != "" {
+		conditionCount++
+	}
+	if filter.UserID != "" {
+		conditionCount++
+	}
+	if filter.MemoryType != "" {
+		conditionCount++
+	}
+
+	mustConditions := make([]map[string]interface{}, 0, conditionCount)
 
 	if filter.MemoryID != "" {
 		mustConditions = append(mustConditions, map[string]interface{}{

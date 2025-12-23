@@ -121,7 +121,12 @@ const DefaultMQEPrompt = `你是一个查询扩展助手。给定一个用户查
 
 // Transform 执行多查询扩展
 func (t *MultiQueryTransformer) Transform(ctx context.Context, query string) ([]TransformedQuery, error) {
-	var results []TransformedQuery
+	// Pre-allocate results with expected capacity
+	resultsCapacity := t.config.NumQueries
+	if t.config.IncludeOriginal {
+		resultsCapacity++
+	}
+	results := make([]TransformedQuery, 0, resultsCapacity)
 
 	// 如果包含原始查询，先添加
 	if t.config.IncludeOriginal {

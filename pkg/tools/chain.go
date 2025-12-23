@@ -56,7 +56,7 @@ func WithInputMapping(mapping []map[string]string) SequentialChainOption {
 // Execute 执行顺序工具链
 func (c *SequentialChain) Execute(ctx context.Context, input map[string]interface{}) (string, error) {
 	outputs := make([]map[string]interface{}, len(c.tools))
-	var results []string
+	results := make([]string, 0, len(c.tools))
 
 	for i, tool := range c.tools {
 		select {

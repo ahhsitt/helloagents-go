@@ -15,9 +15,9 @@ type DocumentChunker interface {
 //
 // 使用分隔符列表递归分割文本，直到块大小在限制范围内。
 type RecursiveCharacterChunker struct {
-	ChunkSize      int      // 目标块大小
-	ChunkOverlap   int      // 块之间的重叠大小
-	Separators     []string // 分隔符列表（按优先级）
+	ChunkSize      int              // 目标块大小
+	ChunkOverlap   int              // 块之间的重叠大小
+	Separators     []string         // 分隔符列表（按优先级）
 	LengthFunction func(string) int // 长度计算函数
 }
 
@@ -27,15 +27,15 @@ func NewRecursiveCharacterChunker(chunkSize, overlap int) *RecursiveCharacterChu
 		ChunkSize:    chunkSize,
 		ChunkOverlap: overlap,
 		Separators: []string{
-			"\n\n",  // 段落
-			"\n",    // 行
-			". ",    // 句子
-			"! ",    // 句子
-			"? ",    // 句子
-			"; ",    // 分句
-			", ",    // 短语
-			" ",     // 单词
-			"",      // 字符
+			"\n\n", // 段落
+			"\n",   // 行
+			". ",   // 句子
+			"! ",   // 句子
+			"? ",   // 句子
+			"; ",   // 分句
+			", ",   // 短语
+			" ",    // 单词
+			"",     // 字符
 		},
 		LengthFunction: func(s string) int { return len(s) },
 	}

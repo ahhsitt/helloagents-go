@@ -156,7 +156,8 @@ func (a *PlanAndSolveAgent) Run(ctx context.Context, input Input) (Output, error
 		defer cancel()
 	}
 
-	var steps []ReasoningStep
+	// Pre-allocate steps slice with reasonable capacity
+	steps := make([]ReasoningStep, 0, a.config.MaxIterations+2)
 	var totalUsage message.TokenUsage
 
 	// Phase 1: Generate Plan
@@ -436,7 +437,8 @@ func (a *PlanAndSolveAgent) RunStream(ctx context.Context, input Input) (<-chan 
 			errChan <- err
 		}
 
-		for _, step := range output.Steps {
+		for i := range output.Steps {
+			step := output.Steps[i]
 			chunkChan <- StreamChunk{Type: ChunkTypeStep, Step: &step}
 		}
 

@@ -12,8 +12,8 @@ import (
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/exporters/stdout/stdoutmetric"
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
-	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
+	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -31,6 +31,9 @@ const (
 	ExporterStdout ExporterType = "stdout"
 	// ExporterNone 无导出器
 	ExporterNone ExporterType = "none"
+
+	// compressionGzip gzip 压缩类型
+	compressionGzip = "gzip"
 )
 
 // ExporterConfig 导出器配置
@@ -94,8 +97,8 @@ func CreateOTLPGRPCTraceExporter(ctx context.Context, cfg ExporterConfig) (sdktr
 		opts = append(opts, otlptracegrpc.WithHeaders(cfg.Headers))
 	}
 
-	if cfg.Compression == "gzip" {
-		opts = append(opts, otlptracegrpc.WithCompressor("gzip"))
+	if cfg.Compression == compressionGzip {
+		opts = append(opts, otlptracegrpc.WithCompressor(compressionGzip))
 	}
 
 	client := otlptracegrpc.NewClient(opts...)
@@ -120,7 +123,7 @@ func CreateOTLPHTTPTraceExporter(ctx context.Context, cfg ExporterConfig) (sdktr
 		opts = append(opts, otlptracehttp.WithHeaders(cfg.Headers))
 	}
 
-	if cfg.Compression == "gzip" {
+	if cfg.Compression == compressionGzip {
 		opts = append(opts, otlptracehttp.WithCompression(otlptracehttp.GzipCompression))
 	}
 
@@ -162,8 +165,8 @@ func CreateOTLPGRPCMetricExporter(ctx context.Context, cfg ExporterConfig) (sdkm
 		opts = append(opts, otlpmetricgrpc.WithHeaders(cfg.Headers))
 	}
 
-	if cfg.Compression == "gzip" {
-		opts = append(opts, otlpmetricgrpc.WithCompressor("gzip"))
+	if cfg.Compression == compressionGzip {
+		opts = append(opts, otlpmetricgrpc.WithCompressor(compressionGzip))
 	}
 
 	return otlpmetricgrpc.New(ctx, opts...)
@@ -187,7 +190,7 @@ func CreateOTLPHTTPMetricExporter(ctx context.Context, cfg ExporterConfig) (sdkm
 		opts = append(opts, otlpmetrichttp.WithHeaders(cfg.Headers))
 	}
 
-	if cfg.Compression == "gzip" {
+	if cfg.Compression == compressionGzip {
 		opts = append(opts, otlpmetrichttp.WithCompression(otlpmetrichttp.GzipCompression))
 	}
 

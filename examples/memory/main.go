@@ -441,7 +441,7 @@ func demoStorageLayer(ctx context.Context) {
 	fmt.Println("  - store.NewGraphStore(config) -> Neo4j or Memory")
 
 	fmt.Println("\nExample usage:")
-	fmt.Println(`
+	fmt.Print(`
   // Create memory-based vector store (default)
   config := store.DefaultConfig()
   vectorStore, _ := store.NewVectorStore(config)

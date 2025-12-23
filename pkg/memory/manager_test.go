@@ -7,10 +7,10 @@ import (
 
 // mockMemory is a mock implementation of the Memory interface for testing
 type mockMemory struct {
-	items    map[string]*MemoryItem
-	addErr   error
-	retErr   error
-	memType  MemoryType
+	items   map[string]*MemoryItem
+	addErr  error
+	retErr  error
+	memType MemoryType
 }
 
 func newMockMemory(memType MemoryType) *mockMemory {

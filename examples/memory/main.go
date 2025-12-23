@@ -28,6 +28,12 @@ func main() {
 	// Demo 3: Semantic Memory (Vector Search)
 	demoSemanticMemory(ctx)
 
+	// Demo 4: MemoryManager (Unified Management)
+	demoMemoryManager(ctx)
+
+	// Demo 5: Storage Layer
+	demoStorageLayer(ctx)
+
 	fmt.Println("=== Example Complete ===")
 }
 
@@ -38,9 +44,9 @@ func demoWorkingMemory(ctx context.Context) {
 
 	// Create working memory with capacity and TTL settings
 	mem := memory.NewWorkingMemory(
-		memory.WithMaxSize(5),                    // Keep only last 5 messages
-		memory.WithTokenLimit(1000),              // Token limit for LLM context
-		memory.WithTTL(10*time.Minute),           // Messages expire after 10 minutes
+		memory.WithMaxSize(5),          // Keep only last 5 messages
+		memory.WithTokenLimit(1000),    // Token limit for LLM context
+		memory.WithTTL(10*time.Minute), // Messages expire after 10 minutes
 	)
 
 	// Simulate a conversation
@@ -82,6 +88,21 @@ func demoWorkingMemory(ctx context.Context) {
 	}
 	fmt.Printf("\nMessages within token limit: %d\n", len(tokenLimitedMsgs))
 
+	// NEW: Demonstrate retrieval with importance-based ranking
+	fmt.Println("\nRetrieving memories by query (TF-IDF search):")
+	items, err := mem.Retrieve(ctx, "AI agents", memory.WithLimit(3))
+	if err != nil {
+		log.Printf("Retrieve failed: %v", err)
+	} else {
+		for i, item := range items {
+			fmt.Printf("  %d. [importance: %.2f] %s\n", i+1, item.Importance, truncate(item.Content, 50))
+		}
+	}
+
+	// NEW: Get context summary
+	summary, _ := mem.GetContextSummary(ctx, 500) // maxLength=500
+	fmt.Printf("\nContext Summary:\n%s\n", summary)
+
 	fmt.Println()
 }
 
@@ -93,35 +114,41 @@ func demoEpisodicMemory(ctx context.Context) {
 	// Create episodic memory
 	mem := memory.NewEpisodicMemory()
 
-	// Record some events
+	// Record some events with session IDs
+	sessionID := "session-001"
 	events := []memory.Episode{
 		{
 			Type:       "user_action",
 			Content:    "User asked about weather in Tokyo",
 			Importance: 0.3,
+			SessionID:  sessionID,
 			Metadata:   map[string]interface{}{"location": "Tokyo"},
 		},
 		{
 			Type:       "tool_call",
 			Content:    "Called weather API for Tokyo",
 			Importance: 0.5,
+			SessionID:  sessionID,
 			Metadata:   map[string]interface{}{"tool": "weather_api", "status": "success"},
 		},
 		{
 			Type:       "user_preference",
 			Content:    "User prefers temperature in Celsius",
 			Importance: 0.8,
+			SessionID:  sessionID,
 			Metadata:   map[string]interface{}{"preference": "celsius"},
 		},
 		{
 			Type:       "user_action",
 			Content:    "User asked about restaurants nearby",
 			Importance: 0.4,
+			SessionID:  sessionID,
 		},
 		{
 			Type:       "error",
 			Content:    "Failed to fetch restaurant data",
 			Importance: 0.6,
+			SessionID:  sessionID,
 			Metadata:   map[string]interface{}{"error_code": "API_TIMEOUT"},
 		},
 	}
@@ -153,6 +180,23 @@ func demoEpisodicMemory(ctx context.Context) {
 	for i, ep := range important {
 		fmt.Printf("  %d. [%s] %s (importance: %.1f)\n", i+1, ep.Type, truncate(ep.Content, 40), ep.Importance)
 	}
+
+	// NEW: Get session episodes
+	sessionEpisodes, _ := mem.GetSessionEpisodes(ctx, sessionID)
+	fmt.Printf("\nEpisodes in session '%s': %d\n", sessionID, len(sessionEpisodes))
+
+	// NEW: Find patterns
+	patterns, _ := mem.FindPatterns(ctx, memory.WithMaxPatterns(3))
+	fmt.Println("\nDetected patterns:")
+	for _, p := range patterns {
+		fmt.Printf("  - Keywords: %v, Frequency: %d\n", p.Keywords, p.Frequency)
+	}
+
+	// NEW: Get timeline
+	timeline, _ := mem.GetTimeline(ctx,
+		memory.WithTimelineRange(time.Now().Add(-1*time.Hour).UnixMilli(), time.Now().UnixMilli()),
+		memory.WithTimelineLimit(5))
+	fmt.Printf("\nTimeline entries (last hour): %d\n", len(timeline))
 
 	fmt.Println()
 }
@@ -249,6 +293,170 @@ func demoSemanticMemory(ctx context.Context) {
 		}
 		fmt.Println()
 	}
+
+	// NEW: Entity and relation management
+	fmt.Println("Entity Management:")
+
+	// Add entities
+	entities := []*memory.Entity{
+		{ID: "user-1", Name: "Alice", Type: "person", Description: "Primary user"},
+		{ID: "lang-1", Name: "Go", Type: "programming_language", Description: "User's favorite language"},
+		{ID: "proj-1", Name: "AI Agent", Type: "project", Description: "Current project"},
+	}
+
+	for _, e := range entities {
+		if err := mem.AddEntity(ctx, e); err != nil {
+			log.Printf("Failed to add entity: %v", err)
+		}
+	}
+	fmt.Printf("Added %d entities\n", len(entities))
+
+	// Add relations
+	relations := []*memory.Relation{
+		{ID: "rel-1", FromEntityID: "user-1", ToEntityID: "lang-1", RelationType: "prefers", Strength: 0.9},
+		{ID: "rel-2", FromEntityID: "user-1", ToEntityID: "proj-1", RelationType: "works_on", Strength: 0.8},
+	}
+
+	for _, r := range relations {
+		if err := mem.AddRelation(ctx, r); err != nil {
+			log.Printf("Failed to add relation: %v", err)
+		}
+	}
+	fmt.Printf("Added %d relations\n", len(relations))
+
+	// Get related entities
+	related, _ := mem.GetRelatedEntities(ctx, "user-1", 2) // maxDepth=2
+	fmt.Printf("\nEntities related to 'Alice': %d\n", len(related))
+	for _, r := range related {
+		fmt.Printf("  - %s (%s)\n", r.Entity.Name, r.Entity.Type)
+	}
+
+	fmt.Println()
+}
+
+// demoMemoryManager demonstrates the unified memory manager
+func demoMemoryManager(ctx context.Context) {
+	fmt.Println("--- Demo 4: Memory Manager ---")
+	fmt.Println()
+
+	// Create config
+	config := memory.DefaultMemoryConfig()
+
+	// Create memory manager
+	manager := memory.NewMemoryManager(config,
+		memory.WithManagerUserID("user-123"),
+	)
+
+	// Create and register memory types
+	workingMem := memory.NewWorkingMemory(
+		memory.WithMaxSize(100),
+		memory.WithTokenLimit(4000),
+	)
+	episodicMem := memory.NewEpisodicMemory()
+	semanticMem := memory.NewSemanticMemory(nil) // nil embedder uses TF-IDF
+
+	manager.RegisterMemory(memory.MemoryTypeWorking, workingMem)
+	manager.RegisterMemory(memory.MemoryTypeEpisodic, episodicMem)
+	manager.RegisterMemory(memory.MemoryTypeSemantic, semanticMem)
+
+	fmt.Println("Registered 3 memory types: working, episodic, semantic")
+
+	// Add memories (auto-classification)
+	memories := []struct {
+		content  string
+		explicit memory.MemoryType
+	}{
+		{"The meeting yesterday was very productive", ""},              // Will be classified as episodic
+		{"Go is a statically typed programming language", ""},          // Will be classified as semantic
+		{"Remember to call John at 3pm", ""},                           // Will be classified as working
+		{"The user prefers dark mode", memory.MemoryTypeSemantic},      // Explicit type
+		{"Yesterday's event was important", memory.MemoryTypeEpisodic}, // Explicit type
+	}
+
+	fmt.Println("\nAdding memories (with auto-classification):")
+	for _, m := range memories {
+		opts := []memory.AddMemoryOption{}
+		if m.explicit != "" {
+			opts = append(opts, memory.WithAddMemoryType(m.explicit))
+		}
+
+		id, err := manager.AddMemory(ctx, m.content, opts...)
+		if err != nil {
+			log.Printf("Failed to add memory: %v", err)
+			continue
+		}
+		fmt.Printf("  Added: %s... (ID: %s)\n", truncate(m.content, 30), id[:8])
+	}
+
+	// Retrieve memories
+	fmt.Println("\nRetrieving memories about 'programming':")
+	results, _ := manager.RetrieveMemories(ctx, "programming", memory.WithLimit(3))
+	for i, item := range results {
+		fmt.Printf("  %d. [%s] %s (importance: %.2f)\n",
+			i+1, item.MemoryType, truncate(item.Content, 40), item.Importance)
+	}
+
+	// Get statistics
+	stats, _ := manager.GetStats(ctx)
+	fmt.Printf("\nMemory Statistics:\n")
+	fmt.Printf("  Total memories: %d\n", stats.TotalCount)
+	for memType, memStats := range stats.ByType {
+		fmt.Printf("  - %s: %d items\n", memType, memStats.Count)
+	}
+
+	// Demonstrate forget mechanism
+	fmt.Println("\nForget low-importance memories:")
+	forgotten, _ := manager.ForgetMemories(ctx, memory.ForgetByImportance,
+		memory.WithThreshold(0.3))
+	fmt.Printf("  Forgotten %d memories\n", forgotten)
+
+	// Demonstrate consolidation
+	fmt.Println("\nConsolidate important working memories to episodic:")
+	consolidated, _ := manager.ConsolidateMemories(ctx,
+		memory.WithConsolidateMinImportance(0.7),
+		memory.WithConsolidateTargetType(memory.MemoryTypeEpisodic))
+	fmt.Printf("  Consolidated %d memories\n", consolidated)
+
+	fmt.Println()
+}
+
+// demoStorageLayer demonstrates the storage layer
+func demoStorageLayer(ctx context.Context) {
+	fmt.Println("--- Demo 5: Storage Layer ---")
+	fmt.Println()
+
+	// Import the store package
+	// Note: This demo shows how to use the storage layer independently
+	// In practice, storage is integrated with memory types
+
+	fmt.Println("Storage backends available:")
+	fmt.Println("  - MemoryStore: In-memory storage (default, for testing)")
+	fmt.Println("  - SQLiteStore: Persistent document storage")
+	fmt.Println("  - QdrantStore: Vector similarity search")
+	fmt.Println("  - Neo4jStore: Graph-based entity/relation storage")
+
+	fmt.Println("\nFactory functions:")
+	fmt.Println("  - store.NewDocumentStore(config) -> SQLite or Memory")
+	fmt.Println("  - store.NewVectorStore(config) -> Qdrant or Memory")
+	fmt.Println("  - store.NewGraphStore(config) -> Neo4j or Memory")
+
+	fmt.Println("\nExample usage:")
+	fmt.Println(`
+  // Create memory-based vector store (default)
+  config := store.DefaultConfig()
+  vectorStore, _ := store.NewVectorStore(config)
+
+  // Add vectors
+  vectors := []store.VectorRecord{
+    {ID: "v1", Vector: []float32{0.1, 0.2, 0.3}, MemoryID: "mem-1"},
+  }
+  vectorStore.AddVectors(ctx, "memories", vectors)
+
+  // Search similar vectors
+  results, _ := vectorStore.SearchSimilar(ctx, "memories", queryVector, 10, nil)
+`)
+
+	fmt.Println()
 }
 
 // truncate truncates a string to maxLen characters

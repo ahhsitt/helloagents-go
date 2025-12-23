@@ -6,6 +6,8 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/knadh/koanf/providers/env v1.1.0
 	github.com/knadh/koanf/v2 v2.1.1
+	github.com/mattn/go-sqlite3 v1.14.32
+	github.com/neo4j/neo4j-go-driver/v5 v5.28.4
 	github.com/sashabaranov/go-openai v1.36.1
 	go.opentelemetry.io/otel v1.39.0
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v1.39.0

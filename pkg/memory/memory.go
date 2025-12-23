@@ -91,6 +91,18 @@ type Episode struct {
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 	// Importance 重要性评分 (0-1)
 	Importance float32 `json:"importance,omitempty"`
+
+	// 扩展字段
+	// UserID 用户标识
+	UserID string `json:"user_id,omitempty"`
+	// SessionID 会话标识
+	SessionID string `json:"session_id,omitempty"`
+	// Context 事件上下文
+	Context map[string]interface{} `json:"context,omitempty"`
+	// Outcome 事件结果
+	Outcome string `json:"outcome,omitempty"`
+	// Vector TF-IDF 向量（内部使用）
+	Vector []float32 `json:"-"`
 }
 
 // EpisodeFilter 事件过滤器

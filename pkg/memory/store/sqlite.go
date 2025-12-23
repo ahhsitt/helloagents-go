@@ -146,7 +146,8 @@ func (s *SQLiteDocumentStore) Query(ctx context.Context, collection string, filt
 	whereClause, args := s.buildWhereClause(filter)
 	args = append([]interface{}{collection}, args...)
 
-	query := fmt.Sprintf(
+	// whereClause is built from safe internal functions, not user input
+	query := fmt.Sprintf( //nolint:gosec // whereClause is built internally
 		"SELECT id, content, metadata, created_at, updated_at FROM documents WHERE collection = ? %s",
 		whereClause,
 	)
@@ -203,7 +204,7 @@ func (s *SQLiteDocumentStore) Count(ctx context.Context, collection string, filt
 	whereClause, args := s.buildWhereClause(filter)
 	args = append([]interface{}{collection}, args...)
 
-	query := fmt.Sprintf("SELECT COUNT(*) FROM documents WHERE collection = ? %s", whereClause)
+	query := fmt.Sprintf("SELECT COUNT(*) FROM documents WHERE collection = ? %s", whereClause) //nolint:gosec // whereClause is built internally
 
 	var count int
 	err := s.db.QueryRowContext(ctx, query, args...).Scan(&count)

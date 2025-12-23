@@ -370,8 +370,9 @@ func (s *MemoryVectorStore) SearchSimilar(ctx context.Context, collection string
 		score  float32
 	}
 
-	var scored []scoredRecord
-	for _, rec := range s.collections[collection] {
+	records := s.collections[collection]
+	scored := make([]scoredRecord, 0, len(records))
+	for _, rec := range records {
 		// 应用过滤器
 		if filter != nil && !s.matchVectorFilter(rec, filter) {
 			continue
@@ -566,7 +567,7 @@ type MemoryGraphStore struct {
 	entities  map[string]*GraphEntity
 	relations map[string]*GraphRelation
 	// 索引
-	nameIndex     map[string]string // name (lowercase) -> id
+	nameIndex     map[string]string   // name (lowercase) -> id
 	relationIndex map[string][]string // entityID -> relationIDs
 	mu            sync.RWMutex
 }
@@ -631,7 +632,7 @@ func (s *MemoryGraphStore) SearchEntities(ctx context.Context, pattern string, e
 	defer s.mu.RUnlock()
 
 	patternLower := strings.ToLower(pattern)
-	var results []*GraphEntity
+	results := make([]*GraphEntity, 0, len(s.entities))
 
 	for _, entity := range s.entities {
 		// 名称匹配

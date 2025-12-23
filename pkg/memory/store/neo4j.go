@@ -135,7 +135,10 @@ func (s *Neo4jGraphStore) GetEntity(ctx context.Context, id string) (*GraphEntit
 	if result.Next(ctx) {
 		record := result.Record()
 		nodeVal, _ := record.Get("e")
-		node := nodeVal.(neo4j.Node)
+		node, ok := nodeVal.(neo4j.Node)
+		if !ok {
+			return nil, ErrInvalidInput
+		}
 		return s.nodeToEntity(node), nil
 	}
 
@@ -169,7 +172,10 @@ func (s *Neo4jGraphStore) SearchEntities(ctx context.Context, pattern string, en
 	for result.Next(ctx) {
 		record := result.Record()
 		nodeVal, _ := record.Get("e")
-		node := nodeVal.(neo4j.Node)
+		node, ok := nodeVal.(neo4j.Node)
+		if !ok {
+			continue
+		}
 		entities = append(entities, s.nodeToEntity(node))
 	}
 
@@ -273,17 +279,24 @@ func (s *Neo4jGraphStore) GetRelations(ctx context.Context, entityID string) ([]
 	for result.Next(ctx) {
 		record := result.Record()
 		relVal, _ := record.Get("r")
-		rel := relVal.(neo4j.Relationship)
+		rel, ok := relVal.(neo4j.Relationship)
+		if !ok {
+			continue
+		}
 
 		fromID, _ := record.Get("fromId")
 		toID, _ := record.Get("toId")
 		relType, _ := record.Get("relType")
 
+		fromIDStr, _ := fromID.(string)
+		toIDStr, _ := toID.(string)
+		relTypeStr, _ := relType.(string)
+
 		relations = append(relations, &GraphRelation{
 			ID:           s.getStringProp(rel.Props, "id"),
-			FromEntityID: fromID.(string),
-			ToEntityID:   toID.(string),
-			Type:         relType.(string),
+			FromEntityID: fromIDStr,
+			ToEntityID:   toIDStr,
+			Type:         relTypeStr,
 			Strength:     s.getFloat32Prop(rel.Props, "strength"),
 			CreatedAt:    time.UnixMilli(s.getInt64Prop(rel.Props, "created_at")),
 			UpdatedAt:    time.UnixMilli(s.getInt64Prop(rel.Props, "updated_at")),
@@ -337,7 +350,10 @@ func (s *Neo4jGraphStore) FindRelatedEntities(ctx context.Context, entityID stri
 	for result.Next(ctx) {
 		record := result.Record()
 		nodeVal, _ := record.Get("end")
-		node := nodeVal.(neo4j.Node)
+		node, ok := nodeVal.(neo4j.Node)
+		if !ok {
+			continue
+		}
 		entity := s.nodeToEntity(node)
 
 		// 避免重复
@@ -347,16 +363,22 @@ func (s *Neo4jGraphStore) FindRelatedEntities(ctx context.Context, entityID stri
 		seen[entity.ID] = true
 
 		depthVal, _ := record.Get("depth")
-		depth := int(depthVal.(int64))
+		depthInt64, ok := depthVal.(int64)
+		if !ok {
+			continue
+		}
+		depth := int(depthInt64)
 
 		relVal, _ := record.Get("lastRel")
 		var relation *GraphRelation
 		if relVal != nil {
-			rel := relVal.(neo4j.Relationship)
-			relation = &GraphRelation{
-				ID:       s.getStringProp(rel.Props, "id"),
-				Type:     rel.Type,
-				Strength: s.getFloat32Prop(rel.Props, "strength"),
+			rel, ok := relVal.(neo4j.Relationship)
+			if ok {
+				relation = &GraphRelation{
+					ID:       s.getStringProp(rel.Props, "id"),
+					Type:     rel.Type,
+					Strength: s.getFloat32Prop(rel.Props, "strength"),
+				}
 			}
 		}
 
@@ -402,18 +424,31 @@ func (s *Neo4jGraphStore) GetShortestPath(ctx context.Context, fromID, toID stri
 
 	// 提取节点
 	nodesVal, _ := record.Get("nodes")
-	nodes := nodesVal.([]interface{})
+	nodes, ok := nodesVal.([]interface{})
+	if !ok {
+		return nil, nil, ErrInvalidInput
+	}
 	entities := make([]*GraphEntity, len(nodes))
 	for i, n := range nodes {
-		entities[i] = s.nodeToEntity(n.(neo4j.Node))
+		node, ok := n.(neo4j.Node)
+		if !ok {
+			continue
+		}
+		entities[i] = s.nodeToEntity(node)
 	}
 
 	// 提取关系
 	relsVal, _ := record.Get("rels")
-	rels := relsVal.([]interface{})
+	rels, ok := relsVal.([]interface{})
+	if !ok {
+		return nil, nil, ErrInvalidInput
+	}
 	relations := make([]*GraphRelation, len(rels))
 	for i, r := range rels {
-		rel := r.(neo4j.Relationship)
+		rel, ok := r.(neo4j.Relationship)
+		if !ok {
+			continue
+		}
 		relations[i] = &GraphRelation{
 			ID:       s.getStringProp(rel.Props, "id"),
 			Type:     rel.Type,
@@ -478,8 +513,15 @@ func (s *Neo4jGraphStore) GetStats(ctx context.Context) (*GraphStoreStats, error
 		record := result.Record()
 		typeVal, _ := record.Get("type")
 		countVal, _ := record.Get("count")
-		typeStr := typeVal.(string)
-		count := int(countVal.(int64))
+		typeStr, ok := typeVal.(string)
+		if !ok {
+			continue
+		}
+		countInt64, ok := countVal.(int64)
+		if !ok {
+			continue
+		}
+		count := int(countInt64)
 		entityTypes[typeStr] = count
 		totalEntities += count
 	}
@@ -498,8 +540,15 @@ func (s *Neo4jGraphStore) GetStats(ctx context.Context) (*GraphStoreStats, error
 		record := result.Record()
 		typeVal, _ := record.Get("type")
 		countVal, _ := record.Get("count")
-		typeStr := typeVal.(string)
-		count := int(countVal.(int64))
+		typeStr, ok := typeVal.(string)
+		if !ok {
+			continue
+		}
+		countInt64, ok := countVal.(int64)
+		if !ok {
+			continue
+		}
+		count := int(countInt64)
 		relationTypes[typeStr] = count
 		totalRelations += count
 	}

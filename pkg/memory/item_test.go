@@ -62,9 +62,9 @@ func TestNewMemoryItemWithOptions(t *testing.T) {
 
 func TestWithImportanceClamp(t *testing.T) {
 	tests := []struct {
-		name       string
-		input      float32
-		expected   float32
+		name     string
+		input    float32
+		expected float32
 	}{
 		{"negative", -0.5, 0},
 		{"zero", 0, 0},

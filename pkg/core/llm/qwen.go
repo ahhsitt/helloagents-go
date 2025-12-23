@@ -84,10 +84,10 @@ type qwenRequest struct {
 
 // qwenMessage 通义千问消息
 type qwenMessage struct {
-	Role       string          `json:"role"`
-	Content    string          `json:"content"`
-	ToolCalls  []qwenToolCall  `json:"tool_calls,omitempty"`
-	ToolCallID string          `json:"tool_call_id,omitempty"`
+	Role       string         `json:"role"`
+	Content    string         `json:"content"`
+	ToolCalls  []qwenToolCall `json:"tool_calls,omitempty"`
+	ToolCallID string         `json:"tool_call_id,omitempty"`
 }
 
 // qwenTool 通义千问工具
@@ -105,9 +105,9 @@ type qwenFunction struct {
 
 // qwenToolCall 通义千问工具调用
 type qwenToolCall struct {
-	ID       string             `json:"id"`
-	Type     string             `json:"type"`
-	Function qwenFunctionCall   `json:"function"`
+	ID       string           `json:"id"`
+	Type     string           `json:"type"`
+	Function qwenFunctionCall `json:"function"`
 }
 
 // qwenFunctionCall 通义千问函数调用

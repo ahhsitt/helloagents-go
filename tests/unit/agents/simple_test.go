@@ -12,16 +12,16 @@ import (
 
 // mockProvider implements llm.Provider for testing
 type mockProvider struct {
-	name        string
-	model       string
-	generateFn  func(ctx context.Context, req llm.Request) (llm.Response, error)
-	streamFn    func(ctx context.Context, req llm.Request) (<-chan llm.StreamChunk, <-chan error)
-	embedFn     func(ctx context.Context, texts []string) ([][]float32, error)
+	name       string
+	model      string
+	generateFn func(ctx context.Context, req llm.Request) (llm.Response, error)
+	streamFn   func(ctx context.Context, req llm.Request) (<-chan llm.StreamChunk, <-chan error)
+	embedFn    func(ctx context.Context, texts []string) ([][]float32, error)
 }
 
-func (m *mockProvider) Name() string { return m.name }
+func (m *mockProvider) Name() string  { return m.name }
 func (m *mockProvider) Model() string { return m.model }
-func (m *mockProvider) Close() error { return nil }
+func (m *mockProvider) Close() error  { return nil }
 
 func (m *mockProvider) Generate(ctx context.Context, req llm.Request) (llm.Response, error) {
 	if m.generateFn != nil {

@@ -14,6 +14,12 @@ import (
 	"github.com/easyops/helloagents-go/pkg/core/message"
 )
 
+// Ollama finish reason constants
+const (
+	finishReasonStop      = "stop"
+	finishReasonToolCalls = "tool_calls"
+)
+
 // OllamaClient Ollama 客户端
 type OllamaClient struct {
 	baseURL    string
@@ -64,18 +70,18 @@ func NewOllamaClient(opts ...OllamaOption) *OllamaClient {
 
 // ollamaRequest Ollama 请求结构
 type ollamaRequest struct {
-	Model    string             `json:"model"`
-	Messages []ollamaMessage    `json:"messages"`
-	Stream   bool               `json:"stream"`
-	Options  *ollamaOptions     `json:"options,omitempty"`
-	Tools    []ollamaToolDef    `json:"tools,omitempty"`
+	Model    string          `json:"model"`
+	Messages []ollamaMessage `json:"messages"`
+	Stream   bool            `json:"stream"`
+	Options  *ollamaOptions  `json:"options,omitempty"`
+	Tools    []ollamaToolDef `json:"tools,omitempty"`
 }
 
 // ollamaMessage Ollama 消息
 type ollamaMessage struct {
-	Role       string               `json:"role"`
-	Content    string               `json:"content"`
-	ToolCalls  []ollamaToolCall     `json:"tool_calls,omitempty"`
+	Role      string           `json:"role"`
+	Content   string           `json:"content"`
+	ToolCalls []ollamaToolCall `json:"tool_calls,omitempty"`
 }
 
 // ollamaToolDef Ollama 工具定义
@@ -112,12 +118,12 @@ type ollamaOptions struct {
 
 // ollamaResponse Ollama 响应
 type ollamaResponse struct {
-	Model              string          `json:"model"`
-	Message            ollamaMessage   `json:"message"`
-	Done               bool            `json:"done"`
-	DoneReason         string          `json:"done_reason"`
-	PromptEvalCount    int             `json:"prompt_eval_count"`
-	EvalCount          int             `json:"eval_count"`
+	Model           string        `json:"model"`
+	Message         ollamaMessage `json:"message"`
+	Done            bool          `json:"done"`
+	DoneReason      string        `json:"done_reason"`
+	PromptEvalCount int           `json:"prompt_eval_count"`
+	EvalCount       int           `json:"eval_count"`
 }
 
 // Generate 生成响应（非流式）
@@ -364,7 +370,7 @@ func (c *OllamaClient) convertResponse(resp ollamaResponse) Response {
 
 	if len(resp.Message.ToolCalls) > 0 {
 		result.ToolCalls = c.convertToolCalls(resp.Message.ToolCalls)
-		result.FinishReason = "tool_calls"
+		result.FinishReason = finishReasonToolCalls
 	}
 
 	return result
@@ -388,12 +394,12 @@ func (c *OllamaClient) convertToolCalls(calls []ollamaToolCall) []message.ToolCa
 // mapFinishReason 映射结束原因
 func (c *OllamaClient) mapFinishReason(reason string) string {
 	switch reason {
-	case "stop":
-		return "stop"
+	case finishReasonStop:
+		return finishReasonStop
 	case "length":
 		return "length"
 	default:
-		return "stop"
+		return finishReasonStop
 	}
 }
 

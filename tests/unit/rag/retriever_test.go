@@ -68,9 +68,9 @@ func TestVectorRetriever_WithScoreThreshold(t *testing.T) {
 
 	// Add chunks with different similarity
 	chunks := []rag.DocumentChunk{
-		{ID: "chunk-1", Content: "Hello", Vector: []float32{1.0, 0.0, 0.0}},     // High match
-		{ID: "chunk-2", Content: "World", Vector: []float32{0.0, 1.0, 0.0}},     // Low match
-		{ID: "chunk-3", Content: "Similar", Vector: []float32{0.9, 0.1, 0.0}},   // Medium-high match
+		{ID: "chunk-1", Content: "Hello", Vector: []float32{1.0, 0.0, 0.0}},   // High match
+		{ID: "chunk-2", Content: "World", Vector: []float32{0.0, 1.0, 0.0}},   // Low match
+		{ID: "chunk-3", Content: "Similar", Vector: []float32{0.9, 0.1, 0.0}}, // Medium-high match
 	}
 	_ = store.Add(ctx, chunks)
 

@@ -30,13 +30,13 @@ type MemoryConfig struct {
 	EmbedderAPIKey string // API 密钥
 
 	// 存储配置
-	SQLitePath     string // SQLite 数据库路径
-	QdrantURL      string // Qdrant 服务地址
-	QdrantAPIKey   string // Qdrant API 密钥
+	SQLitePath       string // SQLite 数据库路径
+	QdrantURL        string // Qdrant 服务地址
+	QdrantAPIKey     string // Qdrant API 密钥
 	QdrantCollection string // Qdrant 集合名称
-	Neo4jURI       string // Neo4j 连接 URI
-	Neo4jUsername  string // Neo4j 用户名
-	Neo4jPassword  string // Neo4j 密码
+	Neo4jURI         string // Neo4j 连接 URI
+	Neo4jUsername    string // Neo4j 用户名
+	Neo4jPassword    string // Neo4j 密码
 }
 
 // MemoryConfigOption 配置选项函数

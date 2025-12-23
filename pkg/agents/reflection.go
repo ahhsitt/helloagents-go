@@ -207,7 +207,8 @@ func (a *ReflectionAgent) RunStream(ctx context.Context, input Input) (<-chan St
 			errChan <- err
 		}
 
-		for _, step := range output.Steps {
+		for i := range output.Steps {
+			step := output.Steps[i]
 			chunkChan <- StreamChunk{Type: ChunkTypeStep, Step: &step}
 		}
 

@@ -124,8 +124,8 @@ func TestBuildRequest_WithMessages(t *testing.T) {
 
 func TestMessageRoles(t *testing.T) {
 	tests := []struct {
-		role    message.Role
-		valid   bool
+		role  message.Role
+		valid bool
 	}{
 		{message.RoleSystem, true},
 		{message.RoleUser, true},

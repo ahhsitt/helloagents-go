@@ -6,47 +6,47 @@ import "go.opentelemetry.io/otel/attribute"
 // 遵循 OpenTelemetry 语义约定
 const (
 	// Agent 相关属性
-	AttrAgentName        = "agent.name"
-	AttrAgentType        = "agent.type"
-	AttrAgentIteration   = "agent.iteration"
-	AttrAgentMaxIter     = "agent.max_iterations"
+	AttrAgentName      = "agent.name"
+	AttrAgentType      = "agent.type"
+	AttrAgentIteration = "agent.iteration"
+	AttrAgentMaxIter   = "agent.max_iterations"
 
 	// LLM 相关属性
-	AttrLLMProvider      = "llm.provider"
-	AttrLLMModel         = "llm.model"
-	AttrLLMTemperature   = "llm.temperature"
-	AttrLLMMaxTokens     = "llm.max_tokens"
-	AttrLLMPromptTokens  = "llm.prompt_tokens"
+	AttrLLMProvider         = "llm.provider"
+	AttrLLMModel            = "llm.model"
+	AttrLLMTemperature      = "llm.temperature"
+	AttrLLMMaxTokens        = "llm.max_tokens"
+	AttrLLMPromptTokens     = "llm.prompt_tokens"
 	AttrLLMCompletionTokens = "llm.completion_tokens"
-	AttrLLMTotalTokens   = "llm.total_tokens"
+	AttrLLMTotalTokens      = "llm.total_tokens"
 
 	// Tool 相关属性
-	AttrToolName         = "tool.name"
-	AttrToolArgs         = "tool.arguments"
-	AttrToolResult       = "tool.result"
-	AttrToolError        = "tool.error"
-	AttrToolDuration     = "tool.duration_ms"
+	AttrToolName     = "tool.name"
+	AttrToolArgs     = "tool.arguments"
+	AttrToolResult   = "tool.result"
+	AttrToolError    = "tool.error"
+	AttrToolDuration = "tool.duration_ms"
 
 	// Message 相关属性
-	AttrMessageRole      = "message.role"
-	AttrMessageContent   = "message.content"
-	AttrMessageTokens    = "message.tokens"
+	AttrMessageRole    = "message.role"
+	AttrMessageContent = "message.content"
+	AttrMessageTokens  = "message.tokens"
 
 	// Memory 相关属性
-	AttrMemoryType       = "memory.type"
-	AttrMemoryCapacity   = "memory.capacity"
-	AttrMemoryUsage      = "memory.usage"
+	AttrMemoryType     = "memory.type"
+	AttrMemoryCapacity = "memory.capacity"
+	AttrMemoryUsage    = "memory.usage"
 
 	// RAG 相关属性
-	AttrRAGDocCount      = "rag.document_count"
-	AttrRAGChunkCount    = "rag.chunk_count"
-	AttrRAGTopK          = "rag.top_k"
-	AttrRAGScore         = "rag.score"
+	AttrRAGDocCount   = "rag.document_count"
+	AttrRAGChunkCount = "rag.chunk_count"
+	AttrRAGTopK       = "rag.top_k"
+	AttrRAGScore      = "rag.score"
 
 	// Error 相关属性
-	AttrErrorType        = "error.type"
-	AttrErrorMessage     = "error.message"
-	AttrErrorRetryable   = "error.retryable"
+	AttrErrorType      = "error.type"
+	AttrErrorMessage   = "error.message"
+	AttrErrorRetryable = "error.retryable"
 )
 
 // AgentName 创建 Agent 名称属性

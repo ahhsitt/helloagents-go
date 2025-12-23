@@ -225,12 +225,12 @@ func (t *NoopTracer) SpanFromContext(ctx context.Context) Span {
 // NoopSpan 空实现 Span
 type NoopSpan struct{}
 
-func (s *NoopSpan) End()                                                 {}
-func (s *NoopSpan) SetAttributes(attrs ...attribute.KeyValue)            {}
-func (s *NoopSpan) AddEvent(name string, attrs ...attribute.KeyValue)    {}
-func (s *NoopSpan) RecordError(err error)                                {}
-func (s *NoopSpan) SetStatus(code StatusCode, description string)        {}
-func (s *NoopSpan) SpanContext() SpanContext                             { return SpanContext{} }
+func (s *NoopSpan) End()                                              {}
+func (s *NoopSpan) SetAttributes(attrs ...attribute.KeyValue)         {}
+func (s *NoopSpan) AddEvent(name string, attrs ...attribute.KeyValue) {}
+func (s *NoopSpan) RecordError(err error)                             {}
+func (s *NoopSpan) SetStatus(code StatusCode, description string)     {}
+func (s *NoopSpan) SpanContext() SpanContext                          { return SpanContext{} }
 
 // compile-time interface check
 var _ Tracer = (*OTelTracer)(nil)

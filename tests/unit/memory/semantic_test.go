@@ -948,7 +948,7 @@ func TestSemanticMemory_SearchEmpty(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if results != nil && len(results) != 0 {
+	if len(results) != 0 {
 		t.Errorf("expected nil or empty results, got %v", results)
 	}
 }

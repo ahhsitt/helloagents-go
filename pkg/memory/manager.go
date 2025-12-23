@@ -477,7 +477,7 @@ func WithConsolidateTargetType(t MemoryType) ConsolidateOption {
 // 将高重要性的工作记忆转移到情景/语义记忆。
 func (m *MemoryManager) ConsolidateMemories(ctx context.Context, opts ...ConsolidateOption) (int, error) {
 	options := &consolidateOptions{
-		minImportance: 0.7,   // 默认只整合重要性 >= 0.7 的记忆
+		minImportance: 0.7,                // 默认只整合重要性 >= 0.7 的记忆
 		targetType:    MemoryTypeEpisodic, // 默认整合到情景记忆
 	}
 	for _, opt := range opts {

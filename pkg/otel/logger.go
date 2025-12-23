@@ -112,12 +112,12 @@ func NewNoopLogger() *NoopLogger {
 	return &NoopLogger{}
 }
 
-func (l *NoopLogger) Debug(msg string, args ...any)                {}
-func (l *NoopLogger) Info(msg string, args ...any)                 {}
-func (l *NoopLogger) Warn(msg string, args ...any)                 {}
-func (l *NoopLogger) Error(msg string, args ...any)                {}
-func (l *NoopLogger) WithContext(ctx context.Context) Logger       { return l }
-func (l *NoopLogger) WithFields(fields map[string]any) Logger      { return l }
+func (l *NoopLogger) Debug(msg string, args ...any)           {}
+func (l *NoopLogger) Info(msg string, args ...any)            {}
+func (l *NoopLogger) Warn(msg string, args ...any)            {}
+func (l *NoopLogger) Error(msg string, args ...any)           {}
+func (l *NoopLogger) WithContext(ctx context.Context) Logger  { return l }
+func (l *NoopLogger) WithFields(fields map[string]any) Logger { return l }
 
 // compile-time interface check
 var _ Logger = (*SlogLogger)(nil)

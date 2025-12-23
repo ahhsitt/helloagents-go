@@ -328,7 +328,7 @@ func (m *WorkingMemory) tfidfSearch(query string, messages []workingMessage, lim
 			continue
 		}
 		similarity := m.tfidf.CosineSimilarity(queryVector, wm.Vector)
-		score := m.calculateScore(similarity, float32(wm.Message.Timestamp.Sub(time.Now()).Hours()*-1), wm.Importance)
+		score := m.calculateScore(similarity, float32(time.Since(wm.Message.Timestamp).Hours()), wm.Importance)
 		scored = append(scored, scoredMessage{
 			message:    wm,
 			score:      score,

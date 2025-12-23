@@ -16,8 +16,8 @@ type mockTool struct {
 	params      tools.ParameterSchema
 }
 
-func (m *mockTool) Name() string                   { return m.name }
-func (m *mockTool) Description() string            { return m.description }
+func (m *mockTool) Name() string                      { return m.name }
+func (m *mockTool) Description() string               { return m.description }
 func (m *mockTool) Parameters() tools.ParameterSchema { return m.params }
 func (m *mockTool) Execute(ctx context.Context, args map[string]interface{}) (string, error) {
 	return "mock result", nil

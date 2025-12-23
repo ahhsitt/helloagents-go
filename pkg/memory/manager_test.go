@@ -240,8 +240,8 @@ func TestRetrieveMemories(t *testing.T) {
 	workingMock := newMockMemory(MemoryTypeWorking)
 	episodicMock := newMockMemory(MemoryTypeEpisodic)
 
-	manager.RegisterMemory(MemoryTypeWorking, workingMock)
-	manager.RegisterMemory(MemoryTypeEpisodic, episodicMock)
+	_ = manager.RegisterMemory(MemoryTypeWorking, workingMock)
+	_ = manager.RegisterMemory(MemoryTypeEpisodic, episodicMock)
 
 	// Add items to both mocks
 	workingMock.items["w1"] = NewMemoryItem("working content", MemoryTypeWorking, WithImportance(0.8))
@@ -269,8 +269,8 @@ func TestRetrieveMemoriesWithTypeFilter(t *testing.T) {
 	workingMock := newMockMemory(MemoryTypeWorking)
 	episodicMock := newMockMemory(MemoryTypeEpisodic)
 
-	manager.RegisterMemory(MemoryTypeWorking, workingMock)
-	manager.RegisterMemory(MemoryTypeEpisodic, episodicMock)
+	_ = manager.RegisterMemory(MemoryTypeWorking, workingMock)
+	_ = manager.RegisterMemory(MemoryTypeEpisodic, episodicMock)
 
 	workingMock.items["w1"] = NewMemoryItem("working content", MemoryTypeWorking)
 	episodicMock.items["e1"] = NewMemoryItem("episodic content", MemoryTypeEpisodic)

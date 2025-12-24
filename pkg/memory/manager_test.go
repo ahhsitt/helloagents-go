@@ -293,7 +293,7 @@ func TestRetrieveMemoriesWithLimit(t *testing.T) {
 	manager := NewMemoryManager(nil)
 
 	mock := newMockMemory(MemoryTypeWorking)
-	manager.RegisterMemory(MemoryTypeWorking, mock)
+	_ = manager.RegisterMemory(MemoryTypeWorking, mock)
 
 	// Add multiple items
 	for i := 0; i < 10; i++ {
@@ -315,7 +315,7 @@ func TestUpdateMemory(t *testing.T) {
 	manager := NewMemoryManager(nil)
 
 	mock := newMockMemory(MemoryTypeWorking)
-	manager.RegisterMemory(MemoryTypeWorking, mock)
+	_ = manager.RegisterMemory(MemoryTypeWorking, mock)
 
 	item := NewMemoryItem("content", MemoryTypeWorking)
 	mock.items[item.ID] = item
@@ -331,7 +331,7 @@ func TestUpdateMemoryNotFound(t *testing.T) {
 	manager := NewMemoryManager(nil)
 
 	mock := newMockMemory(MemoryTypeWorking)
-	manager.RegisterMemory(MemoryTypeWorking, mock)
+	_ = manager.RegisterMemory(MemoryTypeWorking, mock)
 
 	err := manager.UpdateMemory(ctx, MemoryTypeWorking, "nonexistent", WithContentUpdate("new content"))
 	if err != ErrNotFound {
@@ -344,7 +344,7 @@ func TestRemoveMemory(t *testing.T) {
 	manager := NewMemoryManager(nil)
 
 	mock := newMockMemory(MemoryTypeWorking)
-	manager.RegisterMemory(MemoryTypeWorking, mock)
+	_ = manager.RegisterMemory(MemoryTypeWorking, mock)
 
 	item := NewMemoryItem("content", MemoryTypeWorking)
 	mock.items[item.ID] = item
@@ -366,8 +366,8 @@ func TestGetStats(t *testing.T) {
 	workingMock := newMockMemory(MemoryTypeWorking)
 	episodicMock := newMockMemory(MemoryTypeEpisodic)
 
-	manager.RegisterMemory(MemoryTypeWorking, workingMock)
-	manager.RegisterMemory(MemoryTypeEpisodic, episodicMock)
+	_ = manager.RegisterMemory(MemoryTypeWorking, workingMock)
+	_ = manager.RegisterMemory(MemoryTypeEpisodic, episodicMock)
 
 	// Add items
 	workingMock.items["w1"] = NewMemoryItem("content", MemoryTypeWorking)

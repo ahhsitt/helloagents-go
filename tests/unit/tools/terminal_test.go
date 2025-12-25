@@ -194,7 +194,7 @@ func TestTerminal_CdCommand(t *testing.T) {
 	}
 
 	// Test cd back with ..
-	output, err = terminal.Execute(context.Background(), map[string]interface{}{
+	_, err = terminal.Execute(context.Background(), map[string]interface{}{
 		"command": "cd ..",
 	})
 	if err != nil {
@@ -274,10 +274,10 @@ func TestTerminal_OutputSizeLimit(t *testing.T) {
 
 func TestTerminal_SecurityModes(t *testing.T) {
 	tests := []struct {
-		name     string
-		mode     builtin.SecurityMode
-		command  string
-		allowed  bool
+		name    string
+		mode    builtin.SecurityMode
+		command string
+		allowed bool
 	}{
 		{"strict allows ls", builtin.ModeStrict, "ls", true},
 		{"strict denies rm", builtin.ModeStrict, "rm file", false},

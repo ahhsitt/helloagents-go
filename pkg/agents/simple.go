@@ -6,6 +6,7 @@ import (
 	"sync"
 	"time"
 
+	agentctx "github.com/easyops/helloagents-go/pkg/context"
 	"github.com/easyops/helloagents-go/pkg/core/config"
 	"github.com/easyops/helloagents-go/pkg/core/errors"
 	"github.com/easyops/helloagents-go/pkg/core/llm"
@@ -215,6 +216,38 @@ func (a *SimpleAgent) RunStream(ctx context.Context, input Input) (<-chan Stream
 
 // buildMessages 构建发送给 LLM 的消息列表
 func (a *SimpleAgent) buildMessages(input Input) []message.Message {
+	// 如果配置了 ContextBuilder，使用它来构建消息
+	if a.options.ContextBuilder != nil {
+		return a.buildMessagesWithContextBuilder(input)
+	}
+
+	return a.buildMessagesSimple(input)
+}
+
+// buildMessagesWithContextBuilder 使用 ContextBuilder 构建消息
+func (a *SimpleAgent) buildMessagesWithContextBuilder(input Input) []message.Message {
+	a.mu.RLock()
+	history := make([]message.Message, len(a.history))
+	copy(history, a.history)
+	a.mu.RUnlock()
+
+	buildInput := &agentctx.BuildInput{
+		Query:              input.Query,
+		SystemInstructions: a.config.SystemPrompt,
+		History:            history,
+	}
+
+	messages, err := a.options.ContextBuilder.BuildMessages(context.Background(), buildInput)
+	if err != nil {
+		// 降级到简单构建
+		return a.buildMessagesSimple(input)
+	}
+
+	return messages
+}
+
+// buildMessagesSimple 简单构建消息列表（原有逻辑）
+func (a *SimpleAgent) buildMessagesSimple(input Input) []message.Message {
 	messages := make([]message.Message, 0)
 
 	// 添加系统提示词

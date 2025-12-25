@@ -1,18 +1,23 @@
 package agents
 
-import "time"
+import (
+	"time"
+
+	agentctx "github.com/easyops/helloagents-go/pkg/context"
+)
 
 // Option Agent 配置选项函数
 type Option func(*AgentOptions)
 
 // AgentOptions Agent 配置选项
 type AgentOptions struct {
-	Name          string
-	SystemPrompt  string
-	MaxIterations int
-	Temperature   float64
-	MaxTokens     int
-	Timeout       time.Duration
+	Name           string
+	SystemPrompt   string
+	MaxIterations  int
+	Temperature    float64
+	MaxTokens      int
+	Timeout        time.Duration
+	ContextBuilder agentctx.Builder
 }
 
 // DefaultAgentOptions 返回默认选项
@@ -65,5 +70,15 @@ func WithAgentMaxTokens(n int) Option {
 func WithAgentTimeout(d time.Duration) Option {
 	return func(o *AgentOptions) {
 		o.Timeout = d
+	}
+}
+
+// WithContextBuilder 设置上下文构建器
+//
+// 如果设置了 ContextBuilder，Agent 将使用它来构建消息列表，
+// 而不是使用简单的 buildMessages 方法。
+func WithContextBuilder(builder agentctx.Builder) Option {
+	return func(o *AgentOptions) {
+		o.ContextBuilder = builder
 	}
 }

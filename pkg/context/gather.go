@@ -290,6 +290,152 @@ func (g *CompositeGatherer) gatherParallel(ctx context.Context, input *GatherInp
 	return allPackets, nil
 }
 
+// NoteRetriever 定义笔记检索接口。
+// NoteTool 实现此接口以供 NoteGatherer 使用。
+type NoteRetriever interface {
+	// ListNotes 列出指定类型的笔记。
+	// noteType 为空时返回所有类型的笔记。
+	ListNotes(noteType string, limit int) ([]NoteResult, error)
+
+	// SearchNotes 搜索包含关键词的笔记。
+	SearchNotes(query string, limit int) ([]NoteResult, error)
+}
+
+// NoteResult 表示笔记检索结果。
+type NoteResult struct {
+	ID        string
+	Title     string
+	Content   string
+	Type      string
+	Tags      []string
+	UpdatedAt time.Time
+}
+
+// NoteGatherer 从笔记工具收集相关笔记作为上下文包。
+//
+// NoteGatherer 优先检索 blocker 和 action 类型的笔记，
+// 然后基于查询搜索其他相关笔记。
+//
+// 笔记类型到 PacketType 的映射：
+//   - task_state, blocker, action → PacketTypeTaskState (P1)
+//   - conclusion, reference, general → PacketTypeEvidence (P2)
+//
+// 用法示例：
+//
+//	noteTool, _ := builtin.NewNoteTool()
+//	noteGatherer := context.NewNoteGatherer(noteTool, 5)
+//
+//	gatherer := context.NewCompositeGatherer([]context.Gatherer{
+//	    context.NewInstructionsGatherer(),
+//	    noteGatherer,
+//	}, true)
+type NoteGatherer struct {
+	// Retriever 是笔记检索器。
+	Retriever NoteRetriever
+
+	// Limit 是要检索的最大笔记数量。
+	Limit int
+}
+
+// NewNoteGatherer 创建新的 NoteGatherer。
+func NewNoteGatherer(retriever NoteRetriever, limit int) *NoteGatherer {
+	if limit <= 0 {
+		limit = 5
+	}
+	return &NoteGatherer{
+		Retriever: retriever,
+		Limit:     limit,
+	}
+}
+
+// Gather 收集相关笔记。
+//
+// 检索策略：
+//  1. 首先检索 blocker 类型的笔记（最紧急）
+//  2. 然后检索 action 类型的笔记（行动计划）
+//  3. 最后基于查询搜索其他相关笔记
+//  4. 结果去重
+func (g *NoteGatherer) Gather(ctx context.Context, input *GatherInput) ([]*Packet, error) {
+	if g.Retriever == nil {
+		return nil, nil
+	}
+
+	if input.Query == "" {
+		return nil, nil
+	}
+
+	seen := make(map[string]bool)
+	var packets []*Packet
+
+	// 1. 优先检索 blocker 类型
+	blockers, err := g.Retriever.ListNotes("blocker", 2)
+	if err == nil {
+		for _, note := range blockers {
+			if !seen[note.ID] {
+				seen[note.ID] = true
+				packets = append(packets, g.noteToPacket(note))
+			}
+		}
+	}
+
+	// 2. 检索 action 类型
+	actions, err := g.Retriever.ListNotes("action", 2)
+	if err == nil {
+		for _, note := range actions {
+			if !seen[note.ID] {
+				seen[note.ID] = true
+				packets = append(packets, g.noteToPacket(note))
+			}
+		}
+	}
+
+	// 3. 基于查询搜索相关笔记
+	remaining := g.Limit - len(packets)
+	if remaining > 0 {
+		searchResults, err := g.Retriever.SearchNotes(input.Query, remaining)
+		if err == nil {
+			for _, note := range searchResults {
+				if !seen[note.ID] {
+					seen[note.ID] = true
+					packets = append(packets, g.noteToPacket(note))
+				}
+			}
+		}
+	}
+
+	// 限制总数量
+	if len(packets) > g.Limit {
+		packets = packets[:g.Limit]
+	}
+
+	return packets, nil
+}
+
+// noteToPacket 将笔记转换为上下文包。
+func (g *NoteGatherer) noteToPacket(note NoteResult) *Packet {
+	// 根据笔记类型确定 PacketType
+	packetType := PacketTypeEvidence
+	switch note.Type {
+	case "task_state", "blocker", "action":
+		packetType = PacketTypeTaskState
+	}
+
+	// 格式化内容
+	content := fmt.Sprintf("[笔记:%s]\n%s", note.Title, note.Content)
+
+	return NewPacket(content,
+		WithPacketType(packetType),
+		WithSource("note"),
+		WithTimestamp(note.UpdatedAt),
+		WithRelevanceScore(0.75), // 笔记具有较高相关性
+		WithMetadata(map[string]interface{}{
+			"note_id":   note.ID,
+			"note_type": note.Type,
+			"tags":      note.Tags,
+		}),
+	)
+}
+
 // 编译时接口检查
 var _ Gatherer = (*InstructionsGatherer)(nil)
 var _ Gatherer = (*TaskGatherer)(nil)
@@ -297,3 +443,4 @@ var _ Gatherer = (*HistoryGatherer)(nil)
 var _ Gatherer = (*MemoryGatherer)(nil)
 var _ Gatherer = (*RAGGatherer)(nil)
 var _ Gatherer = (*CompositeGatherer)(nil)
+var _ Gatherer = (*NoteGatherer)(nil)

@@ -23,7 +23,8 @@ func main() {
 	)
 	defer mcpTool.Close()
 
-	fmt.Println("=== MCPTool Demo ===\n")
+	fmt.Println("=== MCPTool Demo ===")
+	fmt.Println()
 
 	// 1. 列出可用工具
 	fmt.Println("1. Listing available tools...")

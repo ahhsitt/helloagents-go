@@ -68,13 +68,13 @@ func TestEvaluator_ExtractFunctionCalls(t *testing.T) {
 			wantErr:  false,
 		},
 		{
-			name: "Markdown 代码块",
+			name:     "Markdown 代码块",
 			response: "```json\n[{\"name\": \"search\", \"arguments\": {\"query\": \"test\"}}]\n```",
 			wantLen:  1,
 			wantErr:  false,
 		},
 		{
-			name: "多个函数调用",
+			name:     "多个函数调用",
 			response: `[{"name": "func1", "arguments": {}}, {"name": "func2", "arguments": {}}]`,
 			wantLen:  2,
 			wantErr:  false,
@@ -215,7 +215,7 @@ func TestNewEvaluator(t *testing.T) {
 	evaluator := NewEvaluator(dataset, ModeAST)
 
 	if evaluator == nil {
-		t.Error("NewEvaluator() should return non-nil")
+		t.Fatal("NewEvaluator() should return non-nil")
 	}
 
 	if evaluator.mode != ModeAST {

@@ -53,11 +53,11 @@ func TestEvaluator_EvaluateMatch(t *testing.T) {
 	evaluator := &Evaluator{}
 
 	tests := []struct {
-		name         string
-		predicted    string
-		expected     string
-		wantExact    bool
-		wantPartial  bool
+		name        string
+		predicted   string
+		expected    string
+		wantExact   bool
+		wantPartial bool
 	}{
 		{
 			name:        "精确匹配",
@@ -113,7 +113,7 @@ func TestNewDataset(t *testing.T) {
 	dataset := NewDataset("/tmp/gaia", 1, "validation")
 
 	if dataset == nil {
-		t.Error("NewDataset() should return non-nil")
+		t.Fatal("NewDataset() should return non-nil")
 	}
 
 	if dataset.level != 1 {

@@ -100,20 +100,24 @@ func main() {
 
 // 演示位置随机化
 func demoPositionRandomization() {
-	fmt.Println("位置随机化说明:\n")
+	fmt.Println("位置随机化说明:")
+	fmt.Println()
 	fmt.Println("为消除 LLM 的位置偏差（倾向于选择 A 或 B），")
-	fmt.Println("Win Rate 评估会随机交换两个问题的位置。\n")
+	fmt.Println("Win Rate 评估会随机交换两个问题的位置。")
+	fmt.Println()
 
 	fmt.Println("例如：")
 	fmt.Println("  原始顺序: [候选问题] vs [参考问题]")
-	fmt.Println("  随机交换: [参考问题] vs [候选问题]\n")
+	fmt.Println("  随机交换: [参考问题] vs [候选问题]")
+	fmt.Println()
 
 	fmt.Println("评估器会自动处理位置映射，确保正确统计胜负。")
 }
 
 // 演示评估标准
 func demoEvaluationCriteria() {
-	fmt.Println("LLM 评委评估标准:\n")
+	fmt.Println("LLM 评委评估标准:")
+	fmt.Println()
 
 	criteria := []string{
 		"题目表述清晰度",
@@ -134,12 +138,14 @@ func demoEvaluationCriteria() {
 
 // 演示与 AIME 真题对比
 func demoAIMEComparison() {
-	fmt.Println("与 AIME 真题对比:\n")
+	fmt.Println("与 AIME 真题对比:")
+	fmt.Println()
 	fmt.Println("AIME (American Invitational Mathematics Examination) 是")
-	fmt.Println("美国高中数学竞赛，题目质量被广泛认可。\n")
-
+	fmt.Println("美国高中数学竞赛，题目质量被广泛认可。")
+	fmt.Println()
 	fmt.Println("使用 AIME 真题作为参考数据集，可以评估生成的数学题")
-	fmt.Println("与真实竞赛题目的质量差距。\n")
+	fmt.Println("与真实竞赛题目的质量差距。")
+	fmt.Println()
 
 	fmt.Println("胜率解读:")
 	fmt.Println("  > 50%: 生成题目质量超越 AIME (非常优秀)")

@@ -13,6 +13,13 @@ import (
 	"github.com/easyops/helloagents-go/pkg/evaluation"
 )
 
+// Win Rate 评估结果常量
+const (
+	winnerCandidate = "candidate"
+	winnerReference = "reference"
+	winnerTie       = "tie"
+)
+
 // WinRateConfig Win Rate 配置
 type WinRateConfig struct {
 	// RandomSeed 随机种子（用于位置随机化）
@@ -54,7 +61,7 @@ func NewWinRateEvaluator(llmProvider llm.Provider, candidateDataset, referenceDa
 		candidateDataset: candidateDataset,
 		referenceDataset: referenceDataset,
 		config:           config,
-		rand:             rand.New(rand.NewSource(seed)),
+		rand:             rand.New(rand.NewSource(seed)), //nolint:gosec // 位置随机化不需要加密安全的随机数
 	}
 }
 
@@ -135,12 +142,12 @@ func (w *WinRateEvaluator) Evaluate(ctx context.Context, opts ...evaluation.Eval
 		// 统计胜负
 		if compResult, ok := sampleResult.Predicted.(*evaluation.ComparisonResult); ok {
 			switch compResult.ActualWinner {
-			case "candidate":
+			case winnerCandidate:
 				wins++
 				sampleResult.Success = true
-			case "reference":
+			case winnerReference:
 				losses++
-			case "tie":
+			case winnerTie:
 				ties++
 			}
 		}
@@ -270,25 +277,25 @@ func (w *WinRateEvaluator) parseCompareResponse(response, candidateID, reference
 	// 处理 Tie 情况
 	if strings.Contains(strings.ToLower(result.Winner), "tie") {
 		result.Winner = "Tie"
-		result.ActualWinner = "tie"
+		result.ActualWinner = winnerTie
 		return result
 	}
 
 	// 映射回实际胜者
 	if result.Winner == "A" {
 		if swapped {
-			result.ActualWinner = "reference"
+			result.ActualWinner = winnerReference
 		} else {
-			result.ActualWinner = "candidate"
+			result.ActualWinner = winnerCandidate
 		}
 	} else if result.Winner == "B" {
 		if swapped {
-			result.ActualWinner = "candidate"
+			result.ActualWinner = winnerCandidate
 		} else {
-			result.ActualWinner = "reference"
+			result.ActualWinner = winnerReference
 		}
 	} else {
-		result.ActualWinner = "tie"
+		result.ActualWinner = winnerTie
 	}
 
 	return result

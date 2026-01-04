@@ -84,7 +84,8 @@ func main() {
 
 // 演示评分维度
 func demoDimensions() {
-	fmt.Println("LLM Judge 评分维度 (1-5 分):\n")
+	fmt.Println("LLM Judge 评分维度 (1-5 分):")
+	fmt.Println()
 
 	dimensions := []struct {
 		name        string
@@ -113,7 +114,8 @@ func demoDimensions() {
 
 // 演示数据格式
 func demoDataFormat() {
-	fmt.Println("输入数据格式 (JSONL):\n")
+	fmt.Println("输入数据格式 (JSONL):")
+	fmt.Println()
 	fmt.Println(`{"id": "q001", "question": "2+2等于多少?", "answer": "4", "category": "arithmetic"}`)
 	fmt.Println(`{"id": "q002", "question": "地球是太阳系第几颗行星?", "answer": "第三颗", "category": "astronomy"}`)
 }

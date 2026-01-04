@@ -10,8 +10,8 @@ func TestLLMJudge_ParseJudgeResponse(t *testing.T) {
 	judge := &LLMJudge{}
 
 	tests := []struct {
-		name     string
-		response string
+		name      string
+		response  string
 		wantScore float64
 	}{
 		{
@@ -26,13 +26,13 @@ func TestLLMJudge_ParseJudgeResponse(t *testing.T) {
 			wantScore: 4.0, // (4.5 + 4.0 + 3.5 + 4.0) / 4
 		},
 		{
-			name: "Markdown 代码块",
-			response: "```json\n{\"correctness\": 5, \"clarity\": 5, \"difficulty_match\": 5, \"completeness\": 5}\n```",
+			name:      "Markdown 代码块",
+			response:  "```json\n{\"correctness\": 5, \"clarity\": 5, \"difficulty_match\": 5, \"completeness\": 5}\n```",
 			wantScore: 5.0,
 		},
 		{
-			name:     "无效响应使用默认值",
-			response: "无法解析的响应",
+			name:      "无效响应使用默认值",
+			response:  "无法解析的响应",
 			wantScore: 3.0, // 默认值
 		},
 	}
@@ -94,11 +94,11 @@ func TestWinRateEvaluator_ParseCompareResponse(t *testing.T) {
 	evaluator := &WinRateEvaluator{}
 
 	tests := []struct {
-		name         string
-		response     string
-		swapped      bool
-		wantWinner   string
-		wantActual   string
+		name       string
+		response   string
+		swapped    bool
+		wantWinner string
+		wantActual string
 	}{
 		{
 			name:       "A 胜出未交换",
@@ -165,7 +165,7 @@ func TestNewDataset(t *testing.T) {
 	dataset := NewDataset("/tmp/data.jsonl")
 
 	if dataset == nil {
-		t.Error("NewDataset() should return non-nil")
+		t.Fatal("NewDataset() should return non-nil")
 	}
 
 	if dataset.dataPath != "/tmp/data.jsonl" {

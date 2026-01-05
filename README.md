@@ -17,18 +17,6 @@
 - **MCP 协议** - 支持 Model Context Protocol 客户端和服务端
 - **多 LLM 支持** - OpenAI、DeepSeek、Qwen、Ollama、vLLM
 
-## Go 语言重构优势
-
-相比原 Python 实现，Go 版本具有以下优势：
-
-| 特性 | 说明 |
-|------|------|
-| **类型安全** | 编译时类型检查，避免运行时类型错误 |
-| **高性能** | 原生编译，无 GIL 限制，真正的并发执行 |
-| **简单部署** | 单一二进制文件，无需安装运行时依赖 |
-| **并发友好** | goroutine 和 channel 原生支持，适合 Agent 并行调用 |
-| **低资源占用** | 内存占用更低，启动速度更快 |
-
 ## 快速开始
 
 ### 安装
@@ -220,11 +208,6 @@ go run examples/mcp/client/main.go  # MCP 客户端
 | `examples/rag-advanced/` | 高级 RAG (MQE, HyDE) |
 | `examples/mcp/` | MCP 协议客户端/服务端 |
 | `examples/evaluation/` | Agent 性能评估 |
-
-## 文档
-
-- [架构设计](docs/ARCHITECTURE.md)
-- [API 参考](docs/)
 
 ## 测试
 

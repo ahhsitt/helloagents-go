@@ -34,9 +34,9 @@ const (
 
 // Stability API 端点
 const (
-	defaultStabilityBaseURL    = "https://api.stability.ai"
-	stabilitySD35Endpoint      = "/v2beta/stable-image/generate/sd3"
-	stabilityCoreEndpoint      = "/v2beta/stable-image/generate/core"
+	defaultStabilityBaseURL = "https://api.stability.ai"
+	stabilitySD35Endpoint   = "/v2beta/stable-image/generate/sd3"
+	stabilityCoreEndpoint   = "/v2beta/stable-image/generate/core"
 )
 
 // Stability AI 支持的宽高比
@@ -277,9 +277,9 @@ func (c *StabilityClient) parseResponse(httpResp *http.Response, body []byte, re
 	if req.ResponseFormat == FormatBase64 || contentType == "application/json" {
 		// JSON 响应
 		var jsonResp struct {
-			Image      string `json:"image"`
+			Image        string `json:"image"`
 			FinishReason string `json:"finish_reason"`
-			Seed       int64  `json:"seed"`
+			Seed         int64  `json:"seed"`
 		}
 		if err := json.Unmarshal(body, &jsonResp); err != nil {
 			return ImageResponse{}, WrapError(err, "failed to parse JSON response")
@@ -363,6 +363,7 @@ func (c *StabilityClient) retry(ctx context.Context, fn func() error) error {
 		}
 
 		if attempt < c.options.MaxRetries {
+			// #nosec G115 - attempt is bounded by MaxRetries (typically < 10)
 			delay := c.options.RetryDelay * time.Duration(1<<uint(attempt))
 			if delay > 30*time.Second {
 				delay = 30 * time.Second

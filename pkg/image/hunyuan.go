@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"sort"
 	"strings"
 	"time"
 )
@@ -28,11 +27,11 @@ const (
 
 // Hunyuan API 端点
 const (
-	defaultHunyuanHost    = "hunyuan.tencentcloudapi.com"
-	hunyuanService        = "hunyuan"
-	hunyuanAction         = "TextToImage"
-	hunyuanVersion        = "2023-09-01"
-	hunyuanRegion         = "ap-guangzhou"
+	defaultHunyuanHost = "hunyuan.tencentcloudapi.com"
+	hunyuanService     = "hunyuan"
+	hunyuanAction      = "TextToImage"
+	hunyuanVersion     = "2023-09-01"
+	hunyuanRegion      = "ap-guangzhou"
 )
 
 // Hunyuan 支持的尺寸
@@ -356,6 +355,7 @@ func (c *HunyuanClient) retry(ctx context.Context, fn func() error) error {
 		}
 
 		if attempt < c.options.MaxRetries {
+			// #nosec G115 - attempt is bounded by MaxRetries (typically < 10)
 			delay := c.options.RetryDelay * time.Duration(1<<uint(attempt))
 			if delay > 30*time.Second {
 				delay = 30 * time.Second
@@ -382,16 +382,6 @@ func hmacSHA256(key []byte, data string) []byte {
 	h := hmac.New(sha256.New, key)
 	h.Write([]byte(data))
 	return h.Sum(nil)
-}
-
-// sortedKeys 返回排序的 map keys
-func sortedKeys(m map[string]string) []string {
-	keys := make([]string, 0, len(m))
-	for k := range m {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-	return keys
 }
 
 // compile-time interface check

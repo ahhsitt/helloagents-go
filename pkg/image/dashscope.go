@@ -20,9 +20,9 @@ type DashScopeClient struct {
 
 // DashScope 支持的模型
 const (
-	ModelWanxV1       = "wanx-v1"
-	ModelWanx21Turbo  = "wanx2.1-t2i-turbo"
-	ModelWanx21Pro    = "wanx2.1-t2i-pro"
+	ModelWanxV1      = "wanx-v1"
+	ModelWanx21Turbo = "wanx2.1-t2i-turbo"
+	ModelWanx21Pro   = "wanx2.1-t2i-pro"
 )
 
 // DashScope API 端点
@@ -125,9 +125,9 @@ func (c *DashScopeClient) Generate(ctx context.Context, req ImageRequest) (Image
 
 // dashScopeRequest DashScope 图像生成请求
 type dashScopeRequest struct {
-	Model      string                 `json:"model"`
-	Input      dashScopeInput         `json:"input"`
-	Parameters dashScopeParameters    `json:"parameters,omitempty"`
+	Model      string              `json:"model"`
+	Input      dashScopeInput      `json:"input"`
+	Parameters dashScopeParameters `json:"parameters,omitempty"`
 }
 
 type dashScopeInput struct {
@@ -439,6 +439,7 @@ func (c *DashScopeClient) retry(ctx context.Context, fn func() error) error {
 		}
 
 		if attempt < c.options.MaxRetries {
+			// #nosec G115 - attempt is bounded by MaxRetries (typically < 10)
 			delay := c.options.RetryDelay * time.Duration(1<<uint(attempt))
 			if delay > 30*time.Second {
 				delay = 30 * time.Second

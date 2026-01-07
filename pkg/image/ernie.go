@@ -30,9 +30,9 @@ const (
 
 // ERNIE API 端点
 const (
-	defaultERNIEBaseURL    = "https://aip.baidubce.com"
-	ernieTokenEndpoint     = "/oauth/2.0/token"
-	ernieImageEndpoint     = "/rpc/2.0/ernievilg/v1/txt2imgv2"
+	defaultERNIEBaseURL = "https://aip.baidubce.com"
+	ernieTokenEndpoint  = "/oauth/2.0/token"
+	ernieImageEndpoint  = "/rpc/2.0/ernievilg/v1/txt2imgv2"
 )
 
 // ERNIE 支持的尺寸
@@ -216,9 +216,9 @@ type ernieRequest struct {
 
 // ernieResponse ERNIE 响应
 type ernieResponse struct {
-	LogID     int64 `json:"log_id"`
-	Data      struct {
-		TaskID string `json:"task_id"`
+	LogID int64 `json:"log_id"`
+	Data  struct {
+		TaskID  string `json:"task_id"`
 		ImgUrls []struct {
 			Image string `json:"image"`
 		} `json:"img_urls"`
@@ -322,9 +322,9 @@ func (c *ERNIEClient) pollTaskResult(ctx context.Context, taskID string) (ImageR
 
 		var taskResp struct {
 			Data struct {
-				TaskID   string `json:"task_id"`
-				Status   int    `json:"status"`
-				ImgUrls  []struct {
+				TaskID  string `json:"task_id"`
+				Status  int    `json:"status"`
+				ImgUrls []struct {
 					Image string `json:"image"`
 				} `json:"img_urls"`
 			} `json:"data"`
@@ -480,6 +480,7 @@ func (c *ERNIEClient) retry(ctx context.Context, fn func() error) error {
 		}
 
 		if attempt < c.options.MaxRetries {
+			// #nosec G115 - attempt is bounded by MaxRetries (typically < 10)
 			delay := c.options.RetryDelay * time.Duration(1<<uint(attempt))
 			if delay > 30*time.Second {
 				delay = 30 * time.Second

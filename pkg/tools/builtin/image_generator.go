@@ -160,7 +160,7 @@ func (g *ImageGenerator) formatResult(resp image.ImageResponse) (string, error) 
 	}{
 		Success: true,
 		Model:   resp.Model,
-		Images:  make([]struct {
+		Images: make([]struct {
 			URL           string `json:"url,omitempty"`
 			Base64        string `json:"base64,omitempty"`
 			RevisedPrompt string `json:"revised_prompt,omitempty"`

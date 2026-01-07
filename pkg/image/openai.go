@@ -360,6 +360,7 @@ func (c *OpenAIClient) retry(ctx context.Context, fn func() error) error {
 		}
 
 		if attempt < c.options.MaxRetries {
+			// #nosec G115 - attempt is bounded by MaxRetries (typically < 10)
 			delay := c.options.RetryDelay * time.Duration(1<<uint(attempt))
 			if delay > 30*time.Second {
 				delay = 30 * time.Second
